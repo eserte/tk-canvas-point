@@ -1,15 +1,16 @@
 /*
- * tkCanvLine.c --
+ * ptkCanvPoint.c --
  *
- *	This file implements line items for canvas widgets.
+ *	This file implements point items for canvas widgets.
  *
  * Copyright (c) 1991-1994 The Regents of the University of California.
  * Copyright (c) 1994-1995 Sun Microsystems, Inc.
+ * Copyright (c) 2002 Slaven Rezic.
  *
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * RCS: @(#) $Id: ptkCanvPoint.c,v 1.4 2002/07/24 18:47:18 eserte Exp $
+ * RCS: @(#) $Id: ptkCanvPoint.c,v 1.5 2002/07/24 18:49:37 eserte Exp $
  */
 
 #include "tkPort.h"
@@ -17,14 +18,14 @@
 #include "tkCanvases.h"
 
 /*
- * The structure below defines the record for each line item.
+ * The structure below defines the record for each point item.
  */
 
 typedef struct PointItem  {
     Tk_Item header;		/* Generic stuff that's the same for all
 				 * types.  MUST BE FIRST IN STRUCTURE. */
     Tk_Outline outline;		/* Outline structure */
-    int capStyle;		/* Cap style for line. */
+    int capStyle;		/* Cap style for point. */
     double x, y;		/* X- and y-coord of point */
 } PointItem;
 
@@ -202,7 +203,7 @@ CreatePoint(interp, canvas, itemPtr, argc, objv)
     Tk_Item *itemPtr;			/* Record to hold new item;  header
 					 * has been initialized by caller. */
     int argc;				/* Number of arguments in objv. */
-    Tcl_Obj **objv;			/* Arguments describing line. */
+    Tcl_Obj **objv;			/* Arguments describing point. */
 {
     PointItem *pointPtr = (PointItem *) itemPtr;
     int i;
@@ -467,16 +468,6 @@ ComputePointBbox(canvas, pointPtr)
     pointPtr->header.x1 = pointPtr->header.x2 = (int) pointPtr->x;
     pointPtr->header.y1 = pointPtr->header.y2 = (int) pointPtr->y;
 
-    /*XXX change comment
-     * Compute the bounding box of all the points in the line,
-     * then expand in all directions by the line's width to take
-     * care of butting or rounded corners and projecting or
-     * rounded caps.  This expansion is an overestimate (worst-case
-     * is square root of two over two) but it's simple.  Don't do
-     * anything special for curves.  This causes an additional
-     * overestimate in the bounding box, but is faster.
-     */
-
     if (width < 1.0) {
 	width = 1.0;
     }
@@ -550,19 +541,12 @@ DisplayPoint(canvas, itemPtr, display, drawable, x, y, width, height)
 	    stipple = pointPtr->outline.disabledStipple;
 	}
     }
-    /*
-     * Build up an array of points in screen coordinates.  Use a
-     * static array unless the line has an enormous number of points;
-     * in this case, dynamically allocate an array.  For smoothed lines,
-     * generate the curve points on each redisplay.
-     */
 
     Tk_CanvasDrawableCoords(canvas, pointPtr->x, pointPtr->y,
 			    &(staticPoint.x), &(staticPoint.y));
 
     /*
-     * Display point, the free up line storage if it was dynamically
-     * allocated.  If we're stippling, then modify the stipple offset
+     * Display point.  If we're stippling, then modify the stipple offset
      * in the GC.  Be sure to reset the offset when done, since the
      * GC is supposed to be read-only.
      */
@@ -588,7 +572,7 @@ DisplayPoint(canvas, itemPtr, display, drawable, x, y, width, height)
  *	The return value is 0 if the point whose x and y coordinates
  *	are pointPtr[0] and pointPtr[1] is inside the point.  If the
  *	point isn't inside the point then the return value is the
- *	distance from the point to the line.
+ *	distance from the point to the other point.
  *
  * Side effects:
  *	None.
@@ -658,7 +642,7 @@ PointToPoint(canvas, itemPtr, otherPointPtr)
 static int
 PointToArea(canvas, itemPtr, rectPtr)
     Tk_Canvas canvas;		/* Canvas containing item. */
-    Tk_Item *itemPtr;		/* Item to check against line. */
+    Tk_Item *itemPtr;		/* Item to check against point. */
     double *rectPtr;
 {
     PointItem *pointPtr = (PointItem *) itemPtr;
