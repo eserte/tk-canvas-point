@@ -9,7 +9,7 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * RCS: @(#) $Id: ptkCanvPoint.c,v 1.1 2002/07/24 14:16:04 eserte Exp $
+ * RCS: @(#) $Id: ptkCanvPoint.c,v 1.2 2002/07/24 14:44:49 eserte Exp $
  */
 
 #include "tkPort.h"
@@ -148,7 +148,7 @@ static Tk_ConfigSpec configSpecs[] = {
  * of procedures that can be invoked by generic item code.
  */
 
-Tk_ItemType tkPointType = {
+Tk_ItemType ptkCanvPointType = {
     "point",				/* name */
     sizeof(PointItem),			/* itemSize */
     CreatePoint,			/* createProc */
@@ -574,7 +574,6 @@ DisplayPoint(canvas, itemPtr, display, drawable, x, y, width, height)
     intwidth = (int) (pointwidth + 0.5);
     XFillArc(display, drawable, pointPtr->outline.gc, staticPoint.x - intwidth/2,
 	     staticPoint.y - intwidth/2, intwidth+1, intwidth+1, 0, 64*360);
-
 }
 
 #if 0
