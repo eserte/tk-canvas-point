@@ -1,13 +1,18 @@
 # -*- perl -*-
 
+use Tk::MMutil;
+use Config;
+
 # Find path to existing pTk include files
 my $ptkPath = Tk::MMutil::findINC('Tk/pTk/Lang.h');
 $ptkPath =~ s/\/Lang.h$//g;
 
-use Tk::MMutil;
+my $canvasSo = Tk::MMutil::findINC('auto/Tk/Canvas/Canvas.'.$Config{so});
+
+
 Tk::MMutil::TkExtMakefile(
 			  NAME => 'Tk::Canvas::Point',
-			  OBJECT => '$(O_FILES)',
+			  OBJECT => '$(O_FILES) ' . $canvasSo,
 			  INC    => "-I$ptkPath",
 			  $^O eq 'MSWin32' ? () : ('LIBS'        => ["-lm"]),
 			 );
