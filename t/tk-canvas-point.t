@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: tk-canvas-point.t,v 1.1 2002/07/24 13:09:03 eserte Exp $
+# $Id: tk-canvas-point.t,v 1.2 2002/07/24 14:35:02 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2002 Slaven Rezic. All rights reserved.
@@ -19,8 +19,10 @@ use strict;
 
 my $mw = MainWindow->new;
 my $c = $mw->Canvas->pack;
-my $p = $c->createPoint(100,100,-width => 2, -fill => "blue");
-$c->delete($p);
+my $p = $c->create('point',100,100,-width => 20, -fill => "blue");
+$mw->Button(-text => "Delete point",
+	    -command => sub { $c->delete($p) },
+	   )->pack;
 MainLoop;
 
 __END__
