@@ -9,7 +9,7 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * RCS: @(#) $Id: ptkCanvPoint.c,v 1.3 2002/07/24 15:24:47 eserte Exp $
+ * RCS: @(#) $Id: ptkCanvPoint.c,v 1.4 2002/07/24 18:47:18 eserte Exp $
  */
 
 #include "tkPort.h"
@@ -160,7 +160,7 @@ Tk_ItemType ptkCanvPointType = {
     TK_CONFIG_OBJS,			/* flags, no TK_ITEM_VISITOR_SUPPORT */
     PointToPoint,			/* pointProc */
     PointToArea,			/* areaProc */
-NULL,//    PointToPostscript,			/* postscriptProc */
+    PointToPostscript,			/* postscriptProc */
     ScalePoint,				/* scaleProc */
     TranslatePoint,			/* translateProc */
 NULL,//    GetPointIndex,			/* indexProc */
@@ -857,14 +857,13 @@ TranslatePoint(canvas, itemPtr, deltaX, deltaY)
     ComputePointBbox(canvas, pointPtr);
 }
 
-#if 0
 /*
  *--------------------------------------------------------------
  *
- * LineToPostscript --
+ * PointToPostscript --
  *
  *	This procedure is called to generate Postscript for
- *	line items.
+ *	point items.
  *
  * Results:
  *	The return value is a standard Tcl result.  If an error
@@ -880,7 +879,7 @@ TranslatePoint(canvas, itemPtr, deltaX, deltaY)
  */
 
 static int
-LineToPostscript(interp, canvas, itemPtr, prepass)
+PointToPostscript(interp, canvas, itemPtr, prepass)
     Tcl_Interp *interp;			/* Leave Postscript or error message
 					 * here. */
     Tk_Canvas canvas;			/* Information about overall canvas. */
@@ -924,124 +923,29 @@ LineToPostscript(interp, canvas, itemPtr, prepass)
 	}
     }
 
-    if (color == NULL || pointPtr->numPoints<1 || pointPtr->coordPtr==NULL) {
+    if (color == NULL) {
 	return TCL_OK;
     }
 
-    if (pointPtr->numPoints==1) {
-	sprintf(buffer, "%.15g %.15g translate %.15g %.15g",
-		pointPtr->coordPtr[0], Tk_CanvasPsY(canvas, pointPtr->coordPtr[1]),
-		width/2.0, width/2.0);
-	Tcl_AppendResult(interp, "matrix currentmatrix\n",buffer,
-		" scale 1 0 moveto 0 0 1 0 360 arc\nsetmatrix\n",          NULL);
-	if (Tk_CanvasPsColor(interp, canvas, color)
-		!= TCL_OK) {
-	    return TCL_ERROR;
-	}
-	if (stipple != None) {
-	    Tcl_AppendResult(interp, "clip ",          NULL);
-	    if (Tk_CanvasPsStipple(interp, canvas, stipple) != TCL_OK) {
-		return TCL_ERROR;
-	    }
-	} else {
-	    Tcl_AppendResult(interp, "fill\n",          NULL);
-	}
-	return TCL_OK;
-    }
-    /*
-     * Generate a path for the line's center-line (do this differently
-     * for straight lines and smoothed lines).
-     */
-
-    if ((!pointPtr->smooth) || (pointPtr->numPoints < 3)) {
-	Tk_CanvasPsPath(interp, canvas, pointPtr->coordPtr, pointPtr->numPoints);
-    } else {
-	if ((stipple == None) && pointPtr->smooth->postscriptProc) {
-	    pointPtr->smooth->postscriptProc(interp, canvas,
-		    pointPtr->coordPtr, pointPtr->numPoints, pointPtr->splineSteps);
-	} else {
-	    /*
-	     * Special hack: Postscript printers don't appear to be able
-	     * to turn a path drawn with "curveto"s into a clipping path
-	     * without exceeding resource limits, so TkMakeBezierPostscript
-	     * won't work for stippled curves.  Instead, generate all of
-	     * the intermediate points here and output them into the
-	     * Postscript file with "lineto"s instead.
-	     */
-
-	    double staticPoints[2*MAX_STATIC_POINTS];
-	    double *pointPtr;
-	    int numPoints;
-
-	    numPoints = pointPtr->smooth->coordProc(canvas, (double *) NULL,
-		    pointPtr->numPoints, pointPtr->splineSteps, (XPoint *) NULL,
-		    (double *) NULL);
-	    pointPtr = staticPoints;
-	    if (numPoints > MAX_STATIC_POINTS) {
-		pointPtr = (double *) ckalloc((unsigned)
-			(numPoints * 2 * sizeof(double)));
-	    }
-	    numPoints = pointPtr->smooth->coordProc(canvas, pointPtr->coordPtr,
-		    pointPtr->numPoints, pointPtr->splineSteps, (XPoint *) NULL,
-		    pointPtr);
-	    Tk_CanvasPsPath(interp, canvas, pointPtr, numPoints);
-	    if (pointPtr != staticPoints) {
-		ckfree((char *) pointPtr);
-	    }
-	}
-    }
-
-    /*
-     * Set other line-drawing parameters and stroke out the line.
-     */
-
-    style = "0 setlinecap\n";
-    if (pointPtr->capStyle == CapRound) {
-	style = "1 setlinecap\n";
-    } else if (pointPtr->capStyle == CapProjecting) {
-	style = "2 setlinecap\n";
-    }
-    Tcl_AppendResult(interp, style,          NULL);
-    style = "0 setlinejoin\n";
-    if (pointPtr->joinStyle == JoinRound) {
-	style = "1 setlinejoin\n";
-    } else if (pointPtr->joinStyle == JoinBevel) {
-	style = "2 setlinejoin\n";
-    }
-    Tcl_AppendResult(interp, style,          NULL);
-
-    if (Tk_CanvasPsOutline(canvas, itemPtr,
-	    &(pointPtr->outline)) != TCL_OK) {
+    sprintf(buffer, "%.15g %.15g translate %.15g %.15g",
+	    pointPtr->x, Tk_CanvasPsY(canvas, pointPtr->y),
+	    width/2.0, width/2.0);
+    Tcl_AppendResult(interp, "matrix currentmatrix\n",buffer,
+		     " scale 1 0 moveto 0 0 1 0 360 arc\nsetmatrix\n",
+		     NULL);
+    if (Tk_CanvasPsColor(interp, canvas, color) != TCL_OK) {
 	return TCL_ERROR;
     }
-
-    /*
-     * Output polygons for the arrowheads, if there are any.
-     */
-
-    if (pointPtr->firstArrowPtr != NULL) {
-	if (stipple != None) {
-	    Tcl_AppendResult(interp, "grestore gsave\n",
-		             NULL);
-	}
-	if (ArrowheadPostscript(interp, canvas, pointPtr,
-		pointPtr->firstArrowPtr) != TCL_OK) {
+    if (stipple != None) {
+	Tcl_AppendResult(interp, "clip ",          NULL);
+	if (Tk_CanvasPsStipple(interp, canvas, stipple) != TCL_OK) {
 	    return TCL_ERROR;
 	}
-    }
-    if (pointPtr->lastArrowPtr != NULL) {
-	if (stipple != None) {
-	    Tcl_AppendResult(interp, "grestore gsave\n",          NULL);
-	}
-	if (ArrowheadPostscript(interp, canvas, pointPtr,
-		pointPtr->lastArrowPtr) != TCL_OK) {
-	    return TCL_ERROR;
-	}
+    } else {
+	Tcl_AppendResult(interp, "fill\n",          NULL);
     }
     return TCL_OK;
 }
-
-#endif
 
 /* Local variables: */
 /* c-basic-offset: 4 */
