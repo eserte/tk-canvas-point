@@ -11,6 +11,8 @@ my $canvasSo = Tk::MMutil::findINC('auto/Tk/Canvas/Canvas.'.$Config{so});
 
 
 Tk::MMutil::TkExtMakefile(
+			  VERSION => "0.01",
+			  XS_VERSION => "0.01",
 			  NAME => 'Tk::Canvas::Point',
 			  OBJECT => '$(O_FILES) ' . $canvasSo,
 			  INC    => "-I$ptkPath",

@@ -1,7 +1,7 @@
 # -*- perl -*-
 
 #
-# $Id: Point.pm,v 1.2 2002/07/24 15:24:24 eserte Exp $
+# $Id: Point.pm,v 1.3 2002/07/25 08:19:48 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2002 Slaven Rezic. All rights reserved.
@@ -17,8 +17,7 @@ use Tk;
 use Tk::Canvas;
 use strict;
 use vars qw($VERSION);
-#$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
-$VERSION = $Tk::VERSION;
+$VERSION = "0.01";
 
 use base qw(DynaLoader);
 
