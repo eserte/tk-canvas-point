@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: tk-canvas-point.t,v 1.4 2002/07/24 15:24:10 eserte Exp $
+# $Id: tk-canvas-point.t,v 1.5 2002/07/24 18:50:34 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2002 Slaven Rezic. All rights reserved.
@@ -36,23 +36,32 @@ $c->bind("all", "<Leave>" => sub {
 	     $status = "";
 	 });
 my @p;
-$mw->Button(-text => "Create points",
-	    -command => sub {
-		for(1..100) {
-		    my $width = rand(20);
-		    push @p, $c->create('point',
-					rand($c->width),rand($c->height),
-					-width => $width,
-					-activefill => "white",
-					-activewidth => $width+2,
-					-fill => [qw(blue red green yellow black white)]->[rand(5)],
-					-tags => "tag".int(rand(100)),
-				       );
-		}
-	    })->pack;
-$mw->Button(-text => "Delete last point",
-	    -command => sub { $c->delete(pop @p) if @p; },
-	   )->pack;
+{
+    my $f = $mw->Frame->pack;
+    $mw->Button(-text => "Create points",
+		-command => sub {
+		    for(1..100) {
+			my $width = rand(20);
+			push @p, $c->create('point',
+					    rand($c->width),rand($c->height),
+					    -width => $width,
+					    -activefill => "white",
+					    -activewidth => $width+2,
+					    -fill => [qw(blue red green yellow black white)]->[rand(5)],
+					    -tags => "tag".int(rand(100)),
+					   );
+		    }
+		})->pack(-side => "left");
+    $mw->Button(-text => "Delete last point",
+		-command => sub { $c->delete(pop @p) if @p; },
+	       )->pack(-side => "left");
+    $mw->Button(-text => "PS",
+		-command => sub {
+		    my $f = "/tmp/test.$$.ps";
+		    $c->postscript(-file => $f);
+		    system("gv $f &");
+		})->pack(-side => "left");
+}
 $mw->Label(-textvariable => \$status)->pack;
 
 MainLoop;
