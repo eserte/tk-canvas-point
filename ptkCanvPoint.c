@@ -10,12 +10,25 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * RCS: @(#) $Id: ptkCanvPoint.c,v 1.5 2002/07/24 18:49:37 eserte Exp $
+ * RCS: @(#) $Id: ptkCanvPoint.c,v 1.6 2004/08/08 16:37:06 eserte Exp $
  */
 
 #include "tkPort.h"
 #include "tkInt.h"
 #include "tkCanvases.h"
+
+#if TCL_MAJOR_VERSION == 8 && TCL_MINOR_VERSION == 0
+# undef TkStateParseProc
+# define TkStateParseProc Tk_StateParseProc
+# undef TkStatePrintProc
+# define TkStatePrintProc Tk_StatePrintProc
+# define HAS_DASH_PATCH 1
+# define CONST84
+# undef CONST
+# define CONST
+#else
+# undef HAS_DASH_PATCH
+#endif
 
 /*
  * The structure below defines the record for each point item.
@@ -37,10 +50,10 @@ static void		ComputePointBbox _ANSI_ARGS_((Tk_Canvas canvas,
 			    PointItem *pointPtr));
 static int		ConfigurePoint _ANSI_ARGS_((Tcl_Interp *interp,
 			    Tk_Canvas canvas, Tk_Item *itemPtr, int argc,
-			    Tcl_Obj **objv, int flags));
+			    CONST84 Tcl_Obj *CONST *objv, int flags));
 static int		CreatePoint _ANSI_ARGS_((Tcl_Interp *interp,
 			    Tk_Canvas canvas, struct Tk_Item *itemPtr,
-			    int argc, Tcl_Obj **objv));
+			    int argc, CONST84 Tcl_Obj *CONST *objv));
 static void		DeletePoint _ANSI_ARGS_((Tk_Canvas canvas,
 			    Tk_Item *itemPtr, Display *display));
 static void		DisplayPoint _ANSI_ARGS_((Tk_Canvas canvas,
@@ -51,7 +64,7 @@ static int		GetPointIndex _ANSI_ARGS_((Tcl_Interp *interp,
 			    Tcl_Obj *obj, int *indexPtr));
 static int		PointCoords _ANSI_ARGS_((Tcl_Interp *interp,
 			    Tk_Canvas canvas, Tk_Item *itemPtr,
-			    int argc, Tcl_Obj **objv));
+			    int argc, CONST84 Tcl_Obj *CONST *objv));
 static int		PointToArea _ANSI_ARGS_((Tk_Canvas canvas,
 			    Tk_Item *itemPtr, double *rectPtr));
 static double		PointToPoint _ANSI_ARGS_((Tk_Canvas canvas,
@@ -71,8 +84,8 @@ static void		TranslatePoint _ANSI_ARGS_((Tk_Canvas canvas,
  */
 
 static Tk_CustomOption stateOption = {
-    Tk_StateParseProc,
-    Tk_StatePrintProc, (ClientData) 2
+    TkStateParseProc,
+    TkStatePrintProc, (ClientData) 2
 };
 static Tk_CustomOption tagsOption = {
     Tk_CanvasTagsParseProc,
@@ -99,9 +112,11 @@ static Tk_ConfigSpec configSpecs[] = {
     {TK_CONFIG_BITMAP, "-activestipple",          NULL,          NULL,
 	         NULL, Tk_Offset(PointItem, outline.activeStipple),
 	TK_CONFIG_NULL_OK},
+#ifdef HAS_DASH_PATCH
     {TK_CONFIG_CUSTOM, "-activetile",          NULL,          NULL,
 	         NULL, Tk_Offset(PointItem, outline.activeTile),
 	TK_CONFIG_NULL_OK, &tileOption},
+#endif
     {TK_CONFIG_CUSTOM, "-activewidth",          NULL,          NULL,
 	"0.0", Tk_Offset(PointItem, outline.activeWidth),
 	TK_CONFIG_DONT_SET_DEFAULT, &pixelOption},
@@ -115,9 +130,11 @@ static Tk_ConfigSpec configSpecs[] = {
     {TK_CONFIG_BITMAP, "-disabledstipple",          NULL,          NULL,
 	         NULL, Tk_Offset(PointItem, outline.disabledStipple),
 	TK_CONFIG_NULL_OK},
+#ifdef HAS_DASH_PATCH
     {TK_CONFIG_CUSTOM, "-disabledtile",          NULL,          NULL,
 	         NULL, Tk_Offset(PointItem, outline.disabledTile),
 	TK_CONFIG_NULL_OK, &tileOption},
+#endif
     {TK_CONFIG_CUSTOM, "-disabledwidth",          NULL,          NULL,
 	"0.0", Tk_Offset(PointItem, outline.disabledWidth),
 	TK_CONFIG_DONT_SET_DEFAULT, &pixelOption},
@@ -132,9 +149,11 @@ static Tk_ConfigSpec configSpecs[] = {
 	TK_CONFIG_NULL_OK},
     {TK_CONFIG_CUSTOM, "-tags",          NULL,          NULL,
 	         NULL, 0, TK_CONFIG_NULL_OK, &tagsOption},
+#ifdef HAS_DASH_PATCH
     {TK_CONFIG_CUSTOM, "-tile",          NULL,          NULL,
 	         NULL, Tk_Offset(PointItem, outline.tile),
 	TK_CONFIG_NULL_OK, &tileOption},
+#endif
     {TK_CONFIG_CUSTOM, "-width",          NULL,          NULL,
 	"1.0", Tk_Offset(PointItem, outline.width),
 	TK_CONFIG_DONT_SET_DEFAULT, &pixelOption},
@@ -203,7 +222,7 @@ CreatePoint(interp, canvas, itemPtr, argc, objv)
     Tk_Item *itemPtr;			/* Record to hold new item;  header
 					 * has been initialized by caller. */
     int argc;				/* Number of arguments in objv. */
-    Tcl_Obj **objv;			/* Arguments describing point. */
+    CONST84 Tcl_Obj *CONST *objv;	/* Arguments describing point. */
 {
     PointItem *pointPtr = (PointItem *) itemPtr;
     int i;
@@ -268,7 +287,7 @@ PointCoords(interp, canvas, itemPtr, argc, objv)
 					 * read or modified. */
     int argc;				/* Number of coordinates supplied in
 					 * objv. Should be 2. */
-    Tcl_Obj **objv;			/* Array of coordinates: x1, y1,
+    CONST84 Tcl_Obj *CONST *objv;	/* Array of coordinates: x1, y1,
 					 * x2, y2, ... */
 {
     PointItem *pointPtr = (PointItem *) itemPtr;
@@ -333,7 +352,7 @@ ConfigurePoint(interp, canvas, itemPtr, argc, objv, flags)
     Tk_Canvas canvas;		/* Canvas containing itemPtr. */
     Tk_Item *itemPtr;		/* Point item to reconfigure. */
     int argc;			/* Number of elements in objv.  */
-    Tcl_Obj **objv;		/* Arguments describing things to configure. */
+    CONST84 Tcl_Obj *CONST *objv;	/* Arguments describing things to configure. */
     int flags;			/* Flags to pass to Tk_ConfigureWidget. */
 {
     PointItem *pointPtr = (PointItem *) itemPtr;
@@ -357,7 +376,9 @@ ConfigurePoint(interp, canvas, itemPtr, argc, objv, flags)
     state = Tk_GetItemState(canvas, itemPtr);
 
     if (pointPtr->outline.activeWidth > pointPtr->outline.width ||
+#ifdef HAS_DASH_PATCH
 	    pointPtr->outline.activeTile != None ||
+#endif
 	    pointPtr->outline.activeColor != NULL ||
 	    pointPtr->outline.activeStipple != None) {
 	itemPtr->redraw_flags |= TK_ITEM_STATE_DEPENDANT;
@@ -512,7 +533,9 @@ DisplayPoint(canvas, itemPtr, display, drawable, x, y, width, height)
     double pointwidth;
     int intwidth;
     Tk_State state = Tk_GetItemState(canvas, itemPtr);
+#ifdef HAS_DASH_PATCH
     Tk_Tile tile = pointPtr->outline.tile;
+#endif
     Pixmap stipple = pointPtr->outline.stipple;
 
     if (pointPtr->outline.gc==None) {
@@ -524,9 +547,11 @@ DisplayPoint(canvas, itemPtr, display, drawable, x, y, width, height)
 	if (pointPtr->outline.activeWidth>pointwidth) {
 	    pointwidth = pointPtr->outline.activeWidth;
 	}
+#ifdef HAS_DASH_PATCH
 	if (pointPtr->outline.activeTile!=NULL) {
 	    tile = pointPtr->outline.activeTile;
 	}
+#endif
 	if (pointPtr->outline.activeStipple!=None) {
 	    stipple = pointPtr->outline.activeStipple;
 	}
@@ -534,9 +559,11 @@ DisplayPoint(canvas, itemPtr, display, drawable, x, y, width, height)
 	if (pointPtr->outline.disabledWidth>pointwidth) {
 	    pointwidth = pointPtr->outline.disabledWidth;
 	}
+#ifdef HAS_DASH_PATCH
 	if (pointPtr->outline.disabledTile!=NULL) {
 	    tile = pointPtr->outline.disabledTile;
 	}
+#endif
 	if (pointPtr->outline.disabledStipple!=None) {
 	    stipple = pointPtr->outline.disabledStipple;
 	}
