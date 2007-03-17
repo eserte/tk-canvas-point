@@ -2,17 +2,18 @@
 
 use Tk::MMutil;
 use Config;
+use File::Spec;
+use File::Basename qw(dirname);
 
 # Find path to existing pTk include files
-my $ptkPath = Tk::MMutil::findINC('Tk/pTk/Lang.h');
-$ptkPath =~ s/\/Lang.h$//g;
+my $ptkPath = dirname(Tk::MMutil::findINC(File::Spec->catfile(qw(Tk pTk Lang.h))));
 
-my $canvasSo = Tk::MMutil::findINC('auto/Tk/Canvas/Canvas.'.$Config{so});
+my $canvasSo = Tk::MMutil::findINC(File::Spec->catfile(qw(auto Tk Canvas), 'Canvas.'.$Config{so}));
 
 
 Tk::MMutil::TkExtMakefile(
-			  VERSION => "0.02",
-			  XS_VERSION => "0.02",
+			  VERSION => "0.03",
+			  XS_VERSION => "0.03",
 			  NAME => 'Tk::Canvas::Point',
 			  OBJECT => '$(O_FILES) ',
 			  MYEXTLIB => $canvasSo,
