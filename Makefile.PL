@@ -19,6 +19,10 @@ Tk::MMutil::TkExtMakefile(
 			  MYEXTLIB => $canvasSo,
 			  INC    => "-I$ptkPath",
 			  $^O eq 'MSWin32' ? () : ('LIBS'        => ["-lm"]),
+			  EXTRA_META => <<EOF,
+configure_requires:
+  Tk: 800
+EOF
 			 );
 
 sub MY::postamble {
