@@ -20,8 +20,7 @@ Tk::MMutil::TkExtMakefile(
 			  INC    => "-I$ptkPath",
 			  $^O eq 'MSWin32' ? () : ('LIBS'        => ["-lm"]),
 			  EXTRA_META => <<'EOF',
-dynamic_config: 0
-build_requires:
+configure_requires:
   Tk::MMutil: 0
   File::Spec: 0
 EOF
