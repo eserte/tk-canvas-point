@@ -1,0 +1,8 @@
+Revision history for Perl extension Tk::Canvas::Point.
+
+0.04
+	- just added configure_requires to META.yml
+
+0.03
+	- use File::Spec and File::Basename in Makefile.PL for
+	  compatibility
