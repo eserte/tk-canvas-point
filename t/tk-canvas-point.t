@@ -2,10 +2,10 @@
 # -*- perl -*-
 
 #
-# $Id: tk-canvas-point.t,v 1.6 2004/08/08 16:36:43 eserte Exp $
+# $Id: tk-canvas-point.t,v 1.7 2007/11/20 21:57:05 eserte Exp $
 # Author: Slaven Rezic
 #
-# Copyright (C) 2002 Slaven Rezic. All rights reserved.
+# Copyright (C) 2002,2007 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
@@ -13,12 +13,26 @@
 # WWW:  http://www.rezic.de/eserte/
 #
 
-use Test::More qw(no_plan);
-use Tk;
-use Tk::Canvas::Point;
 use strict;
 
+BEGIN {
+    if (!eval q{
+	use Test::More;
+	use File::Temp qw(tempfile);
+	1;
+    }) {
+	print "1..0 # skip: no Test::More and/or File::Temp module\n";
+	exit;
+    }
+}
+
+plan 'no_plan';
+
+use Tk;
+
 $ENV{BATCH} = 1 unless defined $ENV{BATCH};
+
+use_ok('Tk::Canvas::Point');
 
 my $mw = MainWindow->new;
 my $c = $mw->Canvas->pack(-fill => "both", -expand => 1);
@@ -64,7 +78,7 @@ $mw->Label(-textvariable => \$status)->pack;
 
 MainLoop if !$ENV{BATCH};
 
-ok(1);
+pass("Exited MainLoop");
 
 sub create_points {
     for(1..100) {
@@ -86,13 +100,13 @@ sub delete_last_point {
 
 sub postscript {
     my $display = shift;
-    my $f = "/tmp/test.$$.ps";
+    my(undef, $f) = tempfile(SUFFIX => "_tkcp.ps", UNLINK => !$display);
     $c->postscript(-file => $f);
-    ok(-f $f);
+    ok(-f $f, "Seen postscript file $f");
     open(F, $f) or die $!;
     my($firstline) = <F>;
     close F;
-    like($firstline, qr/%!PS-Adobe-\d/);
+    like($firstline, qr/%!PS-Adobe-\d/, "Looks like a postscript file");
     system("gv $f &") if $display;
 }
 
