@@ -1,7 +1,7 @@
 # -*- perl -*-
 
 #
-# $Id: Point.pm,v 1.6 2007/10/18 19:58:07 eserte Exp $
+# $Id: Point.pm,v 1.7 2007/11/20 21:57:50 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2002,2004,2007 Slaven Rezic. All rights reserved.
@@ -17,7 +17,7 @@ use Tk;
 use Tk::Canvas;
 use strict;
 use vars qw($VERSION);
-$VERSION = "0.04";
+$VERSION = "0.05";
 
 use base qw(DynaLoader);
 

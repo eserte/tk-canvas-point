@@ -1,5 +1,9 @@
 Revision history for Perl extension Tk::Canvas::Point.
 
+0.05
+	- do not use predictable temporary files in test
+	  (http://rt.cpan.org/Ticket/Display.html?id=30852)
+
 0.04
 	- just added configure_requires to META.yml
 

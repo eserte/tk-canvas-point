@@ -13,7 +13,7 @@ my $canvasSo = Tk::MMutil::findINC(File::Spec->catfile(qw(auto Tk Canvas), 'Canv
 
 Tk::MMutil::TkExtMakefile(
 			  VERSION_FROM => "Point.pm",
-			  XS_VERSION => "0.04", # should match VERSION_FROM
+			  XS_VERSION => "0.05", # should match VERSION_FROM
 			  NAME => 'Tk::Canvas::Point',
 			  OBJECT => '$(O_FILES) ',
 			  MYEXTLIB => $canvasSo,
