@@ -2,10 +2,10 @@
 # -*- perl -*-
 
 #
-# $Id: tk-canvas-point.t,v 1.7 2007/11/20 21:57:05 eserte Exp $
+# $Id: tk-canvas-point.t,v 1.8 2009/11/10 19:44:17 eserte Exp $
 # Author: Slaven Rezic
 #
-# Copyright (C) 2002,2007 Slaven Rezic. All rights reserved.
+# Copyright (C) 2002,2007,2009 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
@@ -34,7 +34,11 @@ $ENV{BATCH} = 1 unless defined $ENV{BATCH};
 
 use_ok('Tk::Canvas::Point');
 
-my $mw = MainWindow->new;
+my $mw = eval { new MainWindow };
+if (!$mw) {
+    exit 0;
+}
+
 my $c = $mw->Canvas->pack(-fill => "both", -expand => 1);
 $c->bind("all", "<1>" => sub {
 	     my($c) = @_;
