@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: tk-canvas-point.t,v 1.8 2009/11/10 19:44:17 eserte Exp $
+# $Id: tk-canvas-point.t,v 1.9 2009/11/10 19:46:24 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2002,2007,2009 Slaven Rezic. All rights reserved.
@@ -31,6 +31,7 @@ plan 'no_plan';
 use Tk;
 
 $ENV{BATCH} = 1 unless defined $ENV{BATCH};
+$ENV{BATCH} = 0 if @ARGV && $ARGV[0] eq '-demo';
 
 use_ok('Tk::Canvas::Point');
 

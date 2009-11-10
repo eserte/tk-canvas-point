@@ -28,6 +28,9 @@ EOF
 
 sub MY::postamble {
     my $postamble = '
+demo :: pure_all
+	$(FULLPERL) -w -Mblib t/tk-canvas-point.t -demo
+
 ';
 
     if (defined $ENV{USER} && $ENV{USER} eq 'eserte' && $^O =~ /bsd/i && -f "../../perl.release.mk") {
