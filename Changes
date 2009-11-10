@@ -1,5 +1,9 @@
 Revision history for Perl extension Tk::Canvas::Point.
 
+0.06
+	- no code changes, just make test robust against
+	  missing DISPLAY and mention new repository
+
 0.05
 	- do not use predictable temporary files in test
 	  (http://rt.cpan.org/Ticket/Display.html?id=30852)
