@@ -19,11 +19,13 @@ Tk::MMutil::TkExtMakefile(
 			  MYEXTLIB => $canvasSo,
 			  INC    => "-I$ptkPath",
 			  $^O eq 'MSWin32' ? () : ('LIBS'        => ["-lm"]),
-			  EXTRA_META => <<'EOF',
-configure_requires:
-  Tk::MMutil: 0
-  File::Spec: 0
-EOF
+			  ($ExtUtils::MakeMaker::VERSION >= 6.54 ?
+			   (META_ADD => { resources => { repository => 'git://github.com/eserte/tk-canvas-point.git' },
+					  configure_requires => {
+								 'Tk::MMutil' => 0,
+								 'File::Spec' => 0,
+								},
+					}) : ()),
 			 );
 
 sub MY::postamble {
