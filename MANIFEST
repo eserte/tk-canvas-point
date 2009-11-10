@@ -3,5 +3,5 @@ Makefile.PL
 Point.pm
 Point.xs
 ptkCanvPoint.c
-test.pl
 README
+t/tk-canvas-point.t
