@@ -1,0 +1,11 @@
+/.prove
+/Tk-Canvas-Point-*.tar.gz
+/MANIFEST.bak
+/Makefile
+/Makefile.old
+/Point.bs
+/Point.c
+/Point.o
+/blib
+/pm_to_blib
+/ptkCanvPoint.o
