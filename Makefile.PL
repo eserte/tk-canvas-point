@@ -10,6 +10,17 @@ my $ptkPath = dirname(Tk::MMutil::findINC(File::Spec->catfile(qw(Tk pTk Lang.h))
 
 my $canvasSo = Tk::MMutil::findINC(File::Spec->catfile(qw(auto Tk Canvas), 'Canvas.'.$Config{so}));
 
+my $eumm_recent_enough = $ExtUtils::MakeMaker::VERSION >= 6.54;
+
+if (!$eumm_recent_enough) {
+    *MY::dist_core = sub {
+	<<'EOF';
+dist :
+	$(NOECHO) $(ECHO) "Sorry, use a newer EUMM!"
+
+EOF
+    };
+}
 
 Tk::MMutil::TkExtMakefile(
 			  VERSION_FROM => "Point.pm",
@@ -19,7 +30,7 @@ Tk::MMutil::TkExtMakefile(
 			  MYEXTLIB => $canvasSo,
 			  INC    => "-I$ptkPath",
 			  $^O eq 'MSWin32' ? () : ('LIBS'        => ["-lm"]),
-			  ($ExtUtils::MakeMaker::VERSION >= 6.54 ?
+			  ($eumm_recent_enough ?
 			   (META_ADD => { resources => { repository => 'git://github.com/eserte/tk-canvas-point.git' },
 					  configure_requires => {
 								 'Tk::MMutil' => 0,
